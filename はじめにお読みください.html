@@ -1,0 +1,663 @@
+<meta charset="utf-8">
+<title>ALVR Passthrough セットアップ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700&family=Noto+Sans+JP:wght@400;500&family=Roboto+Mono:wght@500&display=swap">
+
+<style>
+  :root {
+    color-scheme: light;
+    --ground: #f5f4f1;
+    --surface: #ffffff;
+    --surface-sunk: #eceae5;
+    --line: #dcd9d2;
+    --ink: #17191c;
+    --ink-soft: #5b6068;
+    --ink-faint: #8b9098;
+    --accent: #1f7a4d;
+    --accent-soft: #e4f0e9;
+    --warn: #a8621a;
+    --warn-soft: #f7eddf;
+    --cyan: #2a9db0;
+    --blue: #3a72c4;
+    --amber: #c9a227;
+    --red: #c0483f;
+
+    --display: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    --body: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    --mono: "Roboto Mono", ui-monospace, "SFMono-Regular", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --ground: #131519;
+      --surface: #1a1d22;
+      --surface-sunk: #101216;
+      --line: #2b2f37;
+      --ink: #e9ebee;
+      --ink-soft: #a5abb5;
+      --ink-faint: #767d88;
+      --accent: #4fbd86;
+      --accent-soft: #16291f;
+      --warn: #d9a05e;
+      --warn-soft: #2a2117;
+      --cyan: #58c3d4;
+      --blue: #6f9ee8;
+      --amber: #e0c351;
+      --red: #e2756a;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --ground: #131519;
+    --surface: #1a1d22;
+    --surface-sunk: #101216;
+    --line: #2b2f37;
+    --ink: #e9ebee;
+    --ink-soft: #a5abb5;
+    --ink-faint: #767d88;
+    --accent: #4fbd86;
+    --accent-soft: #16291f;
+    --warn: #d9a05e;
+    --warn-soft: #2a2117;
+    --cyan: #58c3d4;
+    --blue: #6f9ee8;
+    --amber: #e0c351;
+    --red: #e2756a;
+  }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.85;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 740px;
+    margin: 0 auto;
+    padding-inline: 20px;
+    padding-block: 56px 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(28px, 6vw, 38px);
+    line-height: 1.3;
+    margin: 10px 0 0;
+    text-wrap: balance;
+  }
+
+  .lede {
+    margin: 16px 0 0;
+    font-size: 16px;
+    color: var(--ink-soft);
+    max-width: 62ch;
+  }
+
+  h2 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1.45;
+    margin: 0;
+  }
+
+  /* An inline badge, not a flex row: a flex row's text side defaults to a
+     min-content basis, which for CJK text (breakable at any character)
+     collapses to one glyph per line the moment the row runs short on space. */
+  h2 .num {
+    display: inline-flex;
+    align-items: baseline;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    padding: 1px 9px;
+    margin-right: 12px;
+  }
+
+  h3 {
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 16px;
+    margin: 0;
+    color: var(--ink);
+  }
+
+  section {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  p { margin: 0; max-width: 64ch; }
+
+  ol.steps {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  ol.steps > li {
+    counter-increment: step;
+    display: grid;
+    /* minmax(0, 1fr), not 1fr: a bare 1fr track's automatic minimum is its
+       min-content, and for CJK text (breakable at any character) that is a
+       single character wide, so a slightly narrow viewport collapses the
+       whole line into one glyph per row. minmax(0, ...) removes that trap. */
+    grid-template-columns: 26px minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+  }
+
+  ol.steps > li > :last-child {
+    min-width: 0;
+  }
+
+  ol.steps > li::before {
+    content: counter(step);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-faint);
+    border-bottom: 1px solid var(--line);
+    text-align: center;
+    padding-bottom: 2px;
+    margin-top: 6px;
+  }
+
+  ul.plain {
+    margin: 0;
+    padding-left: 1.1em;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .note {
+    border-left: 3px solid var(--warn);
+    background: var(--warn-soft);
+    padding: 14px 16px;
+    font-size: 14px;
+    color: var(--ink);
+    border-radius: 0 6px 6px 0;
+  }
+
+  .note strong { color: var(--warn); }
+
+  .tip {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 14px 16px;
+    font-size: 14px;
+    border-radius: 0 6px 6px 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  th, td {
+    text-align: left;
+    vertical-align: top;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  th {
+    font-family: var(--display);
+    font-weight: 500;
+    color: var(--ink-soft);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  td:first-child { white-space: nowrap; font-weight: 500; }
+
+  .scroll { overflow-x: auto; }
+
+  .files {
+    background: var(--surface-sunk);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 18px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 2;
+    color: var(--ink-soft);
+    overflow-x: auto;
+  }
+
+  .files b { color: var(--ink); font-weight: 500; }
+
+  .gestures {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 12px;
+  }
+
+  .gesture {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .gesture .hand {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  .gesture .what { font-size: 13.5px; color: var(--ink-soft); }
+
+  .menu-figure {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .menu-figure svg { flex: none; }
+
+  .legend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 13.5px;
+    min-width: 200px;
+  }
+
+  .legend div { display: flex; gap: 10px; align-items: baseline; }
+  .legend div > span { min-width: 0; }
+
+  .legend i {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    flex: none;
+    transform: translateY(1px);
+  }
+
+  .kbd {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    background: var(--surface-sunk);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1px 6px;
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--line);
+    margin: 0;
+  }
+
+  footer {
+    font-size: 13px;
+    color: var(--ink-faint);
+  }
+
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Meta Quest 3 ／ PCVR</div>
+    <h1>ALVR Passthrough</h1>
+    <p class="lede">
+      VR ゲームを表示したまま、<strong>ハンドルやシフターなど現実の一部だけを見える</strong>ようにするアプリです。
+      見える範囲は自分で手で囲んで決められます。範囲は空間に貼り付くので、頭を動かしてもズレません。
+      ハンドルは<strong>回しても形どおりに見える</strong>よう、深度センサーで実物を捉えて透過します。
+      PC の VR ゲームを Quest に飛ばす「ALVR」の改造版です。
+    </p>
+  </header>
+
+  <section>
+    <h3>必要なもの</h3>
+    <div class="scroll">
+      <table>
+        <tr><td>ヘッドセット</td><td>Meta Quest 3（Quest 3S でも動く見込みですが未確認）</td></tr>
+        <tr><td>PC</td><td>SteamVR が動く Windows PC</td></tr>
+        <tr><td>ネットワーク</td><td>PC と Quest が同じネットワーク（PC は有線、Quest は 5GHz／6GHz Wi-Fi 推奨）</td></tr>
+        <tr><td>ケーブル</td><td>USB ケーブル（アプリを入れるときだけ使います）</td></tr>
+        <tr><td>インターネット</td><td>アプリを入れるとき、初回だけ必要です（下記）</td></tr>
+      </table>
+    </div>
+    <div class="files">
+      <b>1_Questにインストール.bat</b> &nbsp;← Quest にアプリを入れる<br>
+      <b>pc/alvr_streamer_windows.zip</b> &nbsp;← PC に入れる配信ソフト<br>
+      apk/ &nbsp;← バッチが使うアプリ本体（触らなくて大丈夫）<br>
+      licenses/ &nbsp;← ライセンス文書
+    </div>
+  </section>
+
+  <hr>
+
+  <section>
+    <h2><span class="num">1</span>Quest の設定（初回だけ）</h2>
+    <p>範囲の編集はすべて手で行うので、Quest の 設定 → 動作（またはハンドトラッキング）で
+      <strong>ハンドトラッキング</strong>と<strong>コントローラーとの自動切り替え</strong>を ON にしてください。</p>
+  </section>
+
+  <section>
+    <h2><span class="num">2</span>Quest にアプリを入れる</h2>
+    <p><strong>最初に一度だけ</strong>、Quest の<strong>開発者モードを ON</strong> にします。
+      スマホの Meta Horizon アプリ → デバイス → ヘッドセットの設定 → <strong>開発者モード</strong>。
+      「開発者組織の登録が必要」と出たら、案内どおり作成してください（無料・数分）。</p>
+    <p>あとは<strong>バッチをダブルクリックするだけ</strong>です。</p>
+    <ol class="steps">
+      <li>zip を<strong>PC のローカルディスクに展開</strong>する（デスクトップなど。zip の中から直接は実行できません）</li>
+      <li><span class="kbd">1_Questにインストール.bat</span> をダブルクリック</li>
+      <li>Quest を USB ケーブルで PC につなぐ</li>
+      <li>ヘッドセットをかぶり、「<strong>USB デバッグを許可しますか？</strong>」が出たら
+        「このコンピューターから常に許可」にチェックして<strong>許可</strong></li>
+      <li>黒い画面に「完了です」と出たら終わり。ケーブルは抜いて大丈夫です</li>
+    </ol>
+    <div class="note">
+      Windows に「PC を保護しました」と出たら、<strong>詳細情報 → 実行</strong>を押してください。<br>
+      公式の ALVR 開発版（GitHub の nightly）が入っている場合は、バッチが「削除して入れ直しますか」と聞くので <strong>Y</strong> を押してください。
+      ストア版・公式の安定版とは共存できます。
+    </div>
+    <div class="tip">
+      初回だけ、バッチが Quest との通信に使う <strong>adb</strong>（Google の Android SDK Platform-Tools <strong>r37.0.1</strong>）を
+      <strong>Google の公式サイトから自動で取得</strong>します（約 8MB）。動作確認したのと同じ版を指定し、ファイルが改ざんされていないかも確かめてから使います。
+      取得したものは <span class="kbd">tools</span> フォルダに置かれ、2回目からは取得しません。Google の利用規約が適用されます。
+    </div>
+    <div class="tip">
+      いつまでも「待っています…」のままのときは、ケーブルを挿し直す／別の USB ポートを試す／
+      Quest を再起動する、を試してください。充電専用のケーブルでは認識されません。
+    </div>
+    <div class="tip">
+      初めて起動したとき「<strong>空間データへのアクセスを許可しますか？</strong>」と出たら<strong>許可</strong>してください。
+      ハンドルを深度センサーで捉えるのに使います（インストール用のバッチを使った場合は、先に許可済みです）。
+    </div>
+    <h3>起動のしかた</h3>
+    <p>Quest のライブラリを開き、右上のフィルタを <strong>「提供元不明」</strong> にすると
+      <strong>「ALVR Passthrough」</strong>があります。以降は PC につながなくても、ここから起動できます。</p>
+  </section>
+
+  <section>
+    <h2><span class="num">3</span>PC の準備（初回だけ）</h2>
+    <div class="tip">
+      <strong>すでに ALVR を使っている場合</strong>は、SteamVR も設定もそのままで構いません。
+      やることは<strong>同梱のストリーマーに差し替えること</strong>だけです（下の 2. と 4.）。
+      バージョンが違うと接続できないため、ここだけは必須です。
+    </div>
+    <ol class="steps">
+      <li>Steam から <strong>SteamVR</strong> をインストール（無料）</li>
+      <li><span class="kbd">pc/alvr_streamer_windows.zip</span> を <strong>PC のローカルディスクに展開</strong>（例 <span class="kbd">C:\ALVR\</span>）<br>
+        <span style="color:var(--ink-soft)">ネットワークドライブや USB メモリのままだと、SteamVR がドライバを読めないことがあります</span></li>
+      <li>展開したフォルダの <strong>ALVR Dashboard.exe</strong> を起動。初回のセットアップは「Next」で進めて OK、ファイアウォールの確認は「許可」</li>
+      <li>別バージョンの ALVR を使っていた場合は、<strong>Installation</strong> タブで古い ALVR ドライバを削除（Remove）</li>
+    </ol>
+    <div class="note">
+      この改造版は開発版（v21.0.0-dev14）がベースです。<strong>公式の安定版 v20 系のストリーマーとは接続できません。</strong>必ず同梱の zip を使ってください。
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">4</span>つなぐ</h2>
+    <ol class="steps">
+      <li>PC で <strong>ALVR Dashboard.exe</strong> を起動しておく</li>
+      <li>Quest で <strong>ALVR Passthrough</strong> を起動</li>
+      <li>ダッシュボードの <strong>Devices</strong> タブに Quest が出てくるので <strong>Trust</strong> を押す</li>
+      <li>SteamVR が自動で起動して映像が流れます（始まらなければ <strong>Launch SteamVR</strong>）</li>
+    </ol>
+    <div class="tip">
+      <strong>Settings → Video → Passthrough</strong> は <strong>OFF のまま</strong>にしてください。<br>
+      OFF＝このアプリの方式（囲んだ範囲だけが現実に見える）／ON＝ALVR 本来の全面パススルーに切り替わります。
+    </div>
+  </section>
+
+  <hr>
+
+  <section>
+    <h2><span class="num">5</span>最初に「正面」を合わせる</h2>
+    <p>範囲の位置は、<strong>ヘッドセットの正面（センター）を基準</strong>に覚えています。
+      そのため<strong>運転席に座り、いつもの姿勢で正面を向いてから、正面を再設定してください</strong>。
+      これをやってから範囲を作れば、次に起動したときも同じ手順で同じ場所に出ます。</p>
+    <ol class="steps">
+      <li>シートに座り、ハンドルを正面に見る姿勢をとる</li>
+      <li>右コントローラーの <strong>Meta ボタンを長押し</strong>（または Quest の設定 → 「ビューをリセット」）</li>
+      <li>視界が自分の向きに合わせて正面に戻る</li>
+    </ol>
+    <div class="note">
+      <strong>テスト版です。</strong>範囲の位置は空間そのものではなく「正面」を基準に覚えているため、
+      <strong>アプリを再起動したり、ヘッドセットを外して被り直したりすると、範囲の位置がずれます。</strong>
+      ずれても作り直す必要はありません。座席で<strong>正面を再設定</strong>してから、
+      <strong>こぶし → 目のアイコン</strong>で表示を OFF／ON すれば元の位置に戻ります。<br>
+      <strong>ハンドル用の円柱も同じようにずれます。</strong>円柱は正面の再設定にすぐ追従するので、再設定するだけで戻ります（目のアイコンの操作は要りません）。
+    </div>
+    <div class="tip">
+      アプリを起動したままで正面を再設定したときは、範囲がすぐには追従しません。<br>
+      <strong>左手をこぶしにして出てくる目のアイコン</strong>を押して<strong>表示→非表示→表示</strong>と切り替えると、
+      今の正面位置に置き直されます。編集モードに入って完了しても同じように置き直されます。
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">6</span>操作方法</h2>
+    <p>操作はすべて<strong>手</strong>で行います。コントローラーを持っていても手は追跡され続けます。</p>
+
+    <h3>左手のジェスチャー</h3>
+    <p>手のひらを自分に向けると、手のひらの上にボタンが浮かびます。</p>
+    <div class="gestures">
+      <div class="gesture">
+        <span class="hand">開く（指を伸ばす）</span>
+        <span class="what">編集メニューが出る</span>
+      </div>
+      <div class="gesture">
+        <span class="hand">握る（こぶし）</span>
+        <span class="what">中央＝表示／非表示の切り替え（押すと今の正面位置に置き直されます）<br>
+          右＝ゲーム中に手の骨の線を表示／非表示</span>
+      </div>
+      <div class="gesture">
+        <span class="hand">その中間・手の甲</span>
+        <span class="what">何も出ない（ハンドルを握った手で誤作動しないように）</span>
+      </div>
+    </div>
+    <p>ボタンは、<strong>右手の人差し指の先を当てて 0.35 秒ほど待つ</strong>と作動します。待っている間、ボタンの周りを白いリングが一周します。</p>
+
+    <h3>範囲の作り方</h3>
+    <ol class="steps">
+      <li>左手を開いて手のひらを向け、<strong>鉛筆マーク</strong>のボタンに右手の人差し指を当てる → 編集モード開始。
+        編集中は<strong>全面が現実（パススルー）</strong>になり、実機を見ながら囲めます</li>
+      <li><strong>右手の親指と人差し指をつまんで</strong>、見えるようにしたいものの<strong>縁をなぞる</strong>。
+        指どうしがほぼ触れるまでつまみ、0.35 秒ほど保つと描き始めます。5cm 進むごとに点が置かれ、線でつながります</li>
+      <li>形を直したいときは、下の表のとおり<strong>つまむ場所で動作が変わります</strong></li>
+      <li><strong>完了</strong>（青いチェック）を押すと保存され、囲んだ内側だけが現実に見える状態に戻ります。
+        次の起動時も、座席で正面を合わせれば同じ場所に出ます</li>
+    </ol>
+
+    <div class="note">
+      <strong>保存されるのは「完了」を押したときだけです。</strong><br>
+      窓も<strong>ハンドル用の円柱</strong>も、完了を押した時点の形と位置が保存され、次に起動したときに自動で出てきます。<br>
+      編集モードのままアプリを終了したり、ヘッドセットを外してアプリが閉じたりすると、<strong>その回の編集は保存されません</strong>
+      （前回完了した状態に戻ります）。編集が終わったら必ず完了を押してください。<br>
+      新しい版をバッチで入れ直しても、保存した範囲は残ります。<strong>アプリをアンインストールすると消えます。</strong>
+    </div>
+
+    <h3>つまむ場所で動作が変わります</h3>
+    <div class="scroll">
+      <table>
+        <tr><th>つまむ場所</th><th>できること</th></tr>
+        <tr><td>点の上</td><td>その点を<strong>移動</strong>（点はほぼ重なるまで近づけてください）</td></tr>
+        <tr><td>枠線の上（点から離れた所）</td><td>そこに<strong>点を追加</strong>して、そのまま動かせます</td></tr>
+        <tr><td>範囲の内側</td><td>形を変えずに<strong>範囲ごと移動</strong>（パン）</td></tr>
+        <tr><td>どの範囲からも離れた所</td><td><strong>新しい範囲</strong>を描き始めます</td></tr>
+      </table>
+    </div>
+    <p>点が増えていくのは新規に描いているときだけです。移動のつまみで勝手に点が増えることはありません。
+      別の範囲を編集したいときは、<strong>その範囲の点や内側をつまむ</strong>と切り替わります。
+      <strong>切り替えた最初のつまみでは何も動きません</strong>（点が動いてしまうのを防ぐため）。もう一度つまむと編集できます。
+      編集中の範囲は明るい緑の太線と大きな点、それ以外は暗い細線で表示されます。</p>
+    <div class="tip">
+      <strong>きれいに見せるコツ:</strong> 実機（ハンドルやシフター）に<strong>触れながら</strong>なぞってください。
+      カメラ映像は作った面に投影されるので、面が実機の奥行きに沿っているほど自然に見えます。
+      一周しなくても、最後の点と最初の点は自動でつながります。
+    </div>
+
+    <h3>左手のボタン（編集中）</h3>
+    <div class="menu-figure">
+      <svg width="190" height="190" viewBox="0 0 190 190" role="img" aria-label="左手のひらに出るボタンの配置図">
+        <circle cx="95" cy="95" r="76" fill="none" stroke="currentColor" stroke-opacity="0.18" stroke-width="1"/>
+        <circle cx="160" cy="95" r="21" fill="#3a72c4"/>
+        <path d="M151 96l6 7 12-14" fill="none" stroke="#0c1116" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="30" cy="95" r="21" fill="#c9a227"/>
+        <path d="M38 99a9 9 0 10-3-9" fill="none" stroke="#0c1116" stroke-width="3.2" stroke-linecap="round"/>
+        <path d="M27 83l8 3-3 8" fill="none" stroke="#0c1116" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="95" cy="30" r="21" fill="#e8913c"/>
+        <circle cx="95" cy="30" r="11" fill="none" stroke="#0c1116" stroke-width="3"/>
+        <path d="M84 30h22" stroke="#0c1116" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="95" cy="160" r="21" fill="#c0483f"/>
+        <path d="M87 152l16 16M103 152l-16 16" stroke="#0c1116" stroke-width="3.4" stroke-linecap="round"/>
+        <circle cx="95" cy="95" r="26" fill="#c0483f"/>
+        <rect x="85" y="86" width="20" height="21" rx="2.5" fill="#0c1116"/>
+        <rect x="81" y="81" width="28" height="4" rx="2" fill="#0c1116"/>
+        <rect x="90" y="76" width="10" height="4" rx="2" fill="#0c1116"/>
+      </svg>
+      <div class="legend">
+        <div><i style="background:#e8913c"></i><span><strong>上</strong>／ハンドル用の円柱を追加（下記）</span></div>
+        <div><i style="background:#3a72c4"></i><span><strong>右</strong>／完了（保存して終了）</span></div>
+        <div><i style="background:#c9a227"></i><span><strong>左</strong>／元に戻す</span></div>
+        <div><i style="background:#c0483f"></i><span><strong>中央（ゴミ箱）</strong>／3 通りの削除。
+          <strong>点</strong>をつまんで運んで離す＝その点を削除／
+          <strong>範囲の内側</strong>をつまんで運んで離す＝その範囲を削除／
+          <strong>指先を当てて待つ</strong>＝最後に触った範囲を削除</span></div>
+        <div><i style="background:#c0483f"></i><span><strong>下（×）</strong>／全範囲を削除。
+          誤操作防止のため<strong>1.2秒の長押し</strong>。元に戻すボタン1回で全部戻ります</span></div>
+      </div>
+    </div>
+
+    <h3>ハンドル用の円柱</h3>
+    <p>ハンドルは回すと形が変わって見えるので、囲んだ窓ではなく<strong>円柱</strong>で扱います。
+      円柱の中に<strong>実物がある所だけ</strong>を、Quest の深度センサーで捉えて透過します。
+      ハンドルをどこまで回しても、握った手ごと形どおりに見えます。<strong>丸型・フォーミュラ型どちらでも使えます</strong>。</p>
+    <ol class="steps">
+      <li>編集モードで、左手のボタンの<strong>上（オレンジ）</strong>を押す。目の前にオレンジの円柱が出ます</li>
+      <li>円柱の<strong>中心の軸を、ハンドルの回転軸（ステアリングシャフト）に合わせます</strong>。
+        軸の両端の<strong>緑の印</strong>をつまんで動かすと、軸の向きと円柱の厚みが変わります。
+        手前の印をハンドルの手前側、奥の印をハンドルの奥側に置いて、軸がハンドルの中心を貫くようにします</li>
+      <li>外周の<strong>オレンジの印</strong>をつまんで、<strong>半径をハンドルの外周より一回り大きく</strong>します</li>
+      <li>円柱の内側をつまむと、形を変えずに円柱ごと動かせます</li>
+      <li><strong>完了</strong>で編集モードを抜けると、円柱の中の実物が透けて見えます。円柱もこのとき<strong>窓と一緒に保存</strong>されます</li>
+    </ol>
+    <p>編集モード中は、円柱の中で深度センサーが捉えている物が<strong>水色</strong>に塗られます。
+      この水色の範囲が、完了後に透けて見える範囲です。<strong>ハンドルを端から端まで回して、ずっと水色のままか</strong>を確かめてください。</p>
+    <div class="note">
+      <strong>軸がハンドルの回転軸からずれていると</strong>、回したときにハンドルの一部が円柱からはみ出して欠けます。
+      回転軸に合わせるのが一番大事です。<br>
+      厚みは、ハンドル・パドル・握った手が入るくらいにします。<strong>厚くしすぎると、奥のモニターや机まで透けます</strong>。
+    </div>
+    <p>円柱も窓と同じように、つまむと選択され、ゴミ箱で削除でき、全削除でも消えます。
+      シフターやボタンボックスは、今までどおり手で囲む窓を使ってください（円柱と同時に使えます）。</p>
+
+    <h3>手とコントローラーの扱い</h3>
+    <p>このアプリは範囲の編集のために<strong>常に手を追跡</strong>していますが、
+      <strong>手の情報はゲーム（SteamVR）には送っていません</strong>。
+      レースゲーム中に手が勝手にコントローラー扱いされて誤操作になるのを防ぐためです。
+      コントローラーは今までどおりそのまま使えます。</p>
+    <ul class="plain">
+      <li>手の骨の線は<strong>編集モード中</strong>に出ます。それ以外では、左手のこぶしの右ボタンで表示／非表示を切り替えられます（起動時は非表示）</li>
+      <li>編集モード中は、コントローラーの入力もゲームに送られません（なぞる動作がトリガー連打になるのを防ぐため）</li>
+      <li>あえて<strong>手をゲームの入力に使いたい</strong>場合は、ダッシュボードの
+        <strong>Settings → Headset → Tracking → Multimodal tracking</strong> を ON にしてください
+        （変更後は SteamVR の再起動が必要）</li>
+    </ul>
+  </section>
+
+  <hr>
+
+  <section>
+    <h2><span class="num">7</span>困ったとき</h2>
+    <div class="scroll">
+      <table>
+        <tr><th>症状</th><th>確認すること</th></tr>
+        <tr><td>左手のボタンが出ない</td><td>手のひらを自分に向けているか／指を伸ばして開いているか／Quest のハンドトラッキングが ON か</td></tr>
+        <tr><td>ボタンが押せない</td><td>人差し指の先をボタンの中心に当てて静止。リングが一周すると作動します</td></tr>
+        <tr><td>点が置けない</td><td>親指と人差し指をしっかり合わせて、少し待つ</td></tr>
+        <tr><td>範囲が変な形になる</td><td>点は置いた順につながります。行ったり来たりせず、ぐるっと一周する順でなぞってください</td></tr>
+        <tr><td>PC とつながらない</td><td>同じネットワークか／同梱の zip のダッシュボードか／ファイアウォールを許可したか</td></tr>
+        <tr><td>ゲーム映像が消えた</td><td>編集モードに入っています。<strong>完了</strong>（青 ✓）を押すと戻ります</td></tr>
+        <tr><td>作った範囲や円柱が消えた</td><td><strong>完了</strong>を押さずにアプリを終了すると、その回の編集は保存されません。作り直して完了を押してください</td></tr>
+        <tr><td>範囲の位置がずれた</td><td>座席で正面を再設定 → こぶしの<strong>目のアイコン</strong>で表示を OFF／ON すると置き直されます</td></tr>
+        <tr><td>円柱の中のハンドルが透けない</td><td>初回起動時の「空間データ」を許可したか（Quest の設定 → アプリ → 権限 から後で変えられます）／編集モードで水色に塗られるか</td></tr>
+        <tr><td>ハンドルの一部が欠ける</td><td>円柱の軸がハンドルの回転軸からずれているか、半径が足りません。編集モードでハンドルを回し、水色が途切れる所を円柱に収めてください</td></tr>
+        <tr><td>黒いハンドルの一部が抜ける</td><td>黒くてつやのある素材は深度センサーが苦手です。周りから補うようにしていますが、大きな面だと抜けることがあります</td></tr>
+        <tr><td>SteamVR にコントローラーが出ない</td><td>コントローラーの電源とペアリングを確認。ダッシュボードの Devices タブで接続中か確認してください</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">8</span>今の制限（テスト版）</h2>
+    <ul class="plain">
+      <li>範囲の位置は<strong>ヘッドセットの正面（センター）基準</strong>です。空間そのものに記憶する仕組み
+        （スペーシャルアンカー）は今後の課題なので、<strong>再起動・被り直し・境界の作り直しで位置がずれます</strong>。
+        そのつど、座席で正面を再設定 →（こぶしの）目のアイコンで OFF／ON して合わせてください</li>
+      <li>範囲が見えるのは<strong>このアプリの中だけ</strong>です。Quest のホーム画面や他のアプリには出せません</li>
+      <li>カメラ映像は作った面に投影されるため、<strong>面から離れた物ほど平たく（写真のように）見えます</strong></li>
+      <li>手の情報はゲームに送っていないので、<strong>ハンドトラッキング前提のゲームは操作できません</strong>
+        （上記の Multimodal tracking を ON にすれば使えます）</li>
+      <li>ハンドルの透過は Quest の深度センサー頼みです。<strong>センサーの更新が少し遅れる</strong>ので、ハンドルを素早く回すと縁がわずかに遅れて付いてきます。
+        縁をぼかして目立たないようにしています</li>
+      <li>深度センサーは<strong>約20cmより近い物</strong>や、<strong>黒くてつやのある物・金属・ガラス</strong>を測るのが苦手です</li>
+      <li>実機での確認は Quest 3 のみです（深度センサーの無い Quest 2 などでは、ハンドル用の円柱は透過されません）</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="num">9</span>ライセンスと免責</h2>
+    <p>このアプリは、オープンソースの <a href="https://github.com/alvr-org/ALVR">ALVR</a>（MIT License）を改造した<strong>非公式版</strong>です。
+      ALVR の開発チームや Meta とは関係がありません。この版についての問い合わせは、ALVR 公式ではなく配布元へお願いします。</p>
+    <ul class="plain">
+      <li><span class="kbd">licenses/ALVR.txt</span> … ALVR の著作権表示と MIT License の全文</li>
+      <li><span class="kbd">licenses/dependencies.html</span> … ALVR が使っているライブラリのライセンス一覧</li>
+      <li><span class="kbd">licenses/NotoSansJP-OFL.txt</span> … アプリ内の日本語表示に使っているフォント（Noto Sans JP、SIL Open Font License 1.1）</li>
+      <li><span class="kbd">pc/alvr_streamer_windows.zip</span> … ALVR 公式の開発版ストリーマーをそのまま同梱しています。中の licenses フォルダに FFmpeg などのライセンスが入っています</li>
+      <li>adb は同梱せず、インストール時に Google から取得します（Google の利用規約が適用されます）</li>
+    </ul>
+    <p>本ソフトウェアは<strong>無保証</strong>です。使用によって生じたいかなる損害についても、作者および ALVR の著作権者は責任を負いません（MIT License の規定のとおり）。
+      Meta Quest は Meta Platforms, Inc. の、SteamVR は Valve Corporation の商標です。</p>
+  </section>
+
+  <footer>
+    ALVR（v21.0.0-dev14 相当）をベースにした非公式の改造版です。オリジナルは
+    <a href="https://github.com/alvr-org/ALVR">alvr-org/ALVR</a>（MIT License）。
+  </footer>
+
+</div>
