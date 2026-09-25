@@ -1,7 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-title ALVR Passthrough - Quest にインストール
+title Cockpit Passthrough - Quest にインストール
 
 set "ADB=%~dp0tools\platform-tools\adb.exe"
 set "PKG=alvr.client.dev"
@@ -9,7 +9,7 @@ set "APK="
 for %%f in ("%~dp0apk\*.apk") do set "APK=%%~ff"
 
 echo ================================================================
-echo   ALVR Passthrough を Quest 3 にインストールします
+echo   Cockpit Passthrough を Quest 3 にインストールします
 echo ================================================================
 echo.
 if not defined APK (
@@ -88,7 +88,7 @@ echo.
 echo ================================================================
 echo   完了です。USB ケーブルは抜いて大丈夫です。
 echo   次からは Quest のライブラリ（提供元不明）の
-echo   「ALVR Passthrough」から起動できます。
+echo   「Cockpit Passthrough」から起動できます。
 echo ================================================================
 echo.
 pause
