@@ -1,4 +1,7 @@
+<!doctype html>
+<html lang="ja">
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cockpit Passthrough セットアップ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -160,23 +163,19 @@
     gap: 14px;
   }
 
+  /* The number sits in the left padding. A grid here would make every bold or code run
+     inside the step its own cell, stacking them one character wide in the number column. */
   ol.steps > li {
     counter-increment: step;
-    display: grid;
-    /* minmax(0, 1fr), not 1fr: a bare 1fr track's automatic minimum is its
-       min-content, and for CJK text (breakable at any character) that is a
-       single character wide, so a slightly narrow viewport collapses the
-       whole line into one glyph per row. minmax(0, ...) removes that trap. */
-    grid-template-columns: 26px minmax(0, 1fr);
-    gap: 12px;
-    align-items: start;
-  }
-
-  ol.steps > li > :last-child {
-    min-width: 0;
+    position: relative;
+    padding-left: 38px;
   }
 
   ol.steps > li::before {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 26px;
     content: counter(step);
     font-family: var(--mono);
     font-size: 12px;
@@ -235,7 +234,8 @@
     white-space: nowrap;
   }
 
-  td:first-child { white-space: nowrap; font-weight: 500; }
+  /* Wraps rather than squeezing the second column into a sliver on a phone */
+  td:first-child { width: 36%; font-weight: 500; }
 
   .scroll { overflow-x: auto; }
 
