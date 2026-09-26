@@ -1,15 +1,15 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-title Cockpit Passthrough - Quest にインストール
+title Sim Cockpit Passthrough - Quest にインストール
 
 set "ADB=%~dp0tools\platform-tools\adb.exe"
-set "PKG=alvr.client.dev"
+set "PKG=app.simcockpit.passthrough"
 set "APK="
 for %%f in ("%~dp0apk\*.apk") do set "APK=%%~ff"
 
 echo ================================================================
-echo   Cockpit Passthrough を Quest 3 にインストールします
+echo   Sim Cockpit Passthrough を Quest 3 にインストールします
 echo ================================================================
 echo.
 if not defined APK (
@@ -56,29 +56,12 @@ echo.
 echo [2/3] インストールしています（1分ほどかかります）...
 "%ADB%" install -r "%APK%" > "%TEMP%\alvr_install.log" 2>&1
 findstr /c:"Success" "%TEMP%\alvr_install.log" > nul
-if not errorlevel 1 goto :installed
-
-findstr /c:"UPDATE_INCOMPATIBLE" "%TEMP%\alvr_install.log" > nul
 if errorlevel 1 (
     type "%TEMP%\alvr_install.log"
     echo.
     echo   インストールに失敗しました。上のメッセージを開発者に送ってください。
     goto :fail
 )
-echo.
-echo   公式の ALVR 開発版がすでに入っているため、上書きできません。
-echo   それを削除してから入れ直します（ALVR の設定は初期化されます）。
-choice /M "  削除して入れ直しますか"
-if errorlevel 2 goto :fail
-"%ADB%" uninstall %PKG% > nul
-"%ADB%" install "%APK%" > "%TEMP%\alvr_install.log" 2>&1
-findstr /c:"Success" "%TEMP%\alvr_install.log" > nul
-if errorlevel 1 (
-    type "%TEMP%\alvr_install.log"
-    goto :fail
-)
-
-:installed
 echo   インストールできました。
 "%ADB%" shell pm grant %PKG% com.oculus.permission.USE_SCENE > nul 2>&1
 echo.
@@ -88,7 +71,7 @@ echo.
 echo ================================================================
 echo   完了です。USB ケーブルは抜いて大丈夫です。
 echo   次からは Quest のライブラリ（提供元不明）の
-echo   「Cockpit Passthrough」から起動できます。
+echo   「Sim Cockpit Passthrough」から起動できます。
 echo ================================================================
 echo.
 pause

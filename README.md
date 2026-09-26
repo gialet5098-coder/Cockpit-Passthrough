@@ -1,4 +1,4 @@
-# Cockpit Passthrough
+# Sim Cockpit Passthrough
 
 **Meta Quest 3 専用**の、シムレーシング向けパススルーアプリです。
 PC の VR レースゲームを遊びながら、**ハンドルやシフターなど、コックピットの実物だけを見える**ようにします。
@@ -13,13 +13,13 @@ PC の VR レースゲームを遊びながら、**ハンドルやシフター�
 
 ## ダウンロード
 
-[**Releases**](../../releases) から最新の `Cockpit_Passthrough_YYYY-MM-DD.zip` をダウンロードしてください。
+[**Releases**](../../releases) から最新の `Sim_Cockpit_Passthrough_YYYY-MM-DD.zip` をダウンロードしてください。
 中身は次のとおりです。
 
 | ファイル | 内容 |
 |---|---|
 | `1_Questにインストール.bat` | Quest にアプリを入れるバッチ |
-| `apk/Cockpit_Passthrough_*.apk` | Quest 3 用アプリ本体 |
+| `apk/Sim_Cockpit_Passthrough_*.apk` | Quest 3 用アプリ本体 |
 | `pc/alvr_streamer_windows.zip` | PC 用ストリーマー（ALVR 公式の開発版 v21.0.0-dev14 をそのまま同梱） |
 | `はじめにお読みください.html` | 詳しい説明書（ブラウザで開いてください） |
 | `licenses/` | ライセンス文書 |
@@ -39,7 +39,7 @@ PC の VR レースゲームを遊びながら、**ハンドルやシフター�
    - 初回だけ、通信に使う adb（Google の Android SDK Platform-Tools **r37.0.1**）を Google の公式サイトから取得します。版を固定し、SHA-256 でファイルを確認してから使います
 3. PC で `pc/alvr_streamer_windows.zip` を展開し、`ALVR Dashboard.exe` を起動します
    - **公式の安定版 v20 系とは接続できません。**必ず同梱のストリーマーを使ってください
-4. Quest で「Cockpit Passthrough」（ライブラリ →「提供元不明」）を起動し、ダッシュボードで Trust を押します
+4. Quest で「Sim Cockpit Passthrough」（ライブラリ →「提供元不明」）を起動し、ダッシュボードで Trust を押します
 5. 座席で正面を再設定してから、左手の手のひらのメニューで範囲を作ります
 
 詳しい手順と操作は、zip の中の `はじめにお読みください.html` を見てください。
@@ -49,6 +49,10 @@ PC の VR レースゲームを遊びながら、**ハンドルやシフター�
 - 窓もステアリング範囲も、**編集モードの「完了」を押したときだけ保存**されます。次に起動すると自動で出てきます
 - 完了を押さずにアプリを終了すると、その回の編集は保存されません
 - 新しい版をバッチで入れ直しても保存は残ります。アプリをアンインストールすると消えます
+
+> **前の版「Cockpit Passthrough」を使っていた方へ**
+> 名前を「Sim Cockpit Passthrough」に変えたときに、中身は同じまま**別のアプリ**になりました（2026-09-27 の版から）。
+> 新しい版は古い版と並んで入り、**作った範囲は引き継がれない**ので作り直してください。古い「Cockpit Passthrough」は、不要ならライブラリから削除してかまいません。
 
 ## 今の制限（テスト版）
 
@@ -64,9 +68,10 @@ PC の VR レースゲームを遊びながら、**ハンドルやシフター�
 - この改造版は、ALVR と同じ [MIT License](LICENSE) です。ALVR の著作権表示は [licenses/ALVR.txt](licenses/ALVR.txt) にあります
 - ALVR が使っているライブラリのライセンスは [licenses/dependencies.html](licenses/dependencies.html) にあります
 - アプリ内の日本語フォント Noto Sans JP は [SIL Open Font License 1.1](licenses/NotoSansJP-OFL.txt) です
-- アプリに入っている OpenXR ローダー（Khronos・Meta・PICO・YVR。公式 ALVR と同じものを変更せず同梱）のライセンスは [licenses/OpenXR-loaders.txt](licenses/OpenXR-loaders.txt) と [licenses/Meta-OpenXR-SDK-Third-Party-Notices.txt](licenses/Meta-OpenXR-SDK-Third-Party-Notices.txt) にあります。Quest 3 で使うのは Khronos のものだけです
+- アプリに入っている OpenXR ローダー（Khronos、変更なし）のライセンス（Apache License 2.0）は [licenses/OpenXR-loader.txt](licenses/OpenXR-loader.txt) にあります
 - 同梱のストリーマーは ALVR 公式のビルドをそのまま使っています。FFmpeg などのライセンスは、その zip の中の `licenses` フォルダにあります。FFmpeg は GPLv3 のため、ソースコードの入手先を [licenses/PC-streamer-sources.txt](licenses/PC-streamer-sources.txt) に記載しています
 - adb は同梱していません。インストール時に Google から取得し、Google の利用規約が適用されます
+- これらのライセンス文書は、アプリ本体（APK）の中の `assets/licenses` にも入っています
 
 本ソフトウェアは**無保証**です。使用によって生じたいかなる損害についても、作者および ALVR の著作権者は責任を負いません。
 問い合わせは ALVR 公式ではなく、このリポジトリの Issues へお願いします。

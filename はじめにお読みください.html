@@ -2,7 +2,7 @@
 <html lang="ja">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cockpit Passthrough セットアップ</title>
+<title>Sim Cockpit Passthrough セットアップ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700&family=Noto+Sans+JP:wght@400;500&family=Roboto+Mono:wght@500&display=swap">
@@ -337,7 +337,7 @@
 
   <header>
     <div class="eyebrow">Meta Quest 3 専用 ／ シムレーシング向けパススルー</div>
-    <h1>Cockpit Passthrough</h1>
+    <h1>Sim Cockpit Passthrough</h1>
     <p class="lede">
       <strong>Meta Quest 3 専用</strong>の、シムレーシング向けパススルーアプリです。PC の VR レースゲームを表示したまま、<strong>ハンドルやシフターなど現実の一部だけを見える</strong>ようにします。
       見える範囲は自分で手で囲んで決められます。範囲は空間に貼り付くので、頭を動かしてもズレません。
@@ -389,13 +389,18 @@
     </ol>
     <div class="note">
       Windows に「PC を保護しました」と出たら、<strong>詳細情報 → 実行</strong>を押してください。<br>
-      公式の ALVR 開発版（GitHub の nightly）が入っている場合は、バッチが「削除して入れ直しますか」と聞くので <strong>Y</strong> を押してください。
-      ストア版・公式の安定版とは共存できます。
+      公式の ALVR（ストア版・安定版・開発版）とは別のアプリなので、どれとも共存できます。
     </div>
     <div class="tip">
       初回だけ、バッチが Quest との通信に使う <strong>adb</strong>（Google の Android SDK Platform-Tools <strong>r37.0.1</strong>）を
       <strong>Google の公式サイトから自動で取得</strong>します（約 8MB）。動作確認したのと同じ版を指定し、ファイルが改ざんされていないかも確かめてから使います。
       取得したものは <span class="kbd">tools</span> フォルダに置かれ、2回目からは取得しません。Google の利用規約が適用されます。
+    </div>
+    <div class="note">
+      <strong>前の版「Cockpit Passthrough」を使っていた方へ</strong><br>
+      名前を「Sim Cockpit Passthrough」に変えたときに、中身は同じまま<strong>別のアプリ</strong>になりました。
+      新しい版は古い版と並んで入り、<strong>作った範囲は引き継がれない</strong>ので、作り直してください。
+      古い「Cockpit Passthrough」は、不要ならライブラリから削除してかまいません。
     </div>
     <div class="tip">
       いつまでも「待っています…」のままのときは、ケーブルを挿し直す／別の USB ポートを試す／
@@ -407,7 +412,7 @@
     </div>
     <h3>起動のしかた</h3>
     <p>Quest のライブラリを開き、右上のフィルタを <strong>「提供元不明」</strong> にすると
-      <strong>「Cockpit Passthrough」</strong>があります。以降は PC につながなくても、ここから起動できます。</p>
+      <strong>「Sim Cockpit Passthrough」</strong>があります。以降は PC につながなくても、ここから起動できます。</p>
   </section>
 
   <section>
@@ -433,7 +438,7 @@
     <h2><span class="num">4</span>つなぐ</h2>
     <ol class="steps">
       <li>PC で <strong>ALVR Dashboard.exe</strong> を起動しておく</li>
-      <li>Quest で <strong>Cockpit Passthrough</strong> を起動</li>
+      <li>Quest で <strong>Sim Cockpit Passthrough</strong> を起動</li>
       <li>ダッシュボードの <strong>Devices</strong> タブに Quest が出てくるので <strong>Trust</strong> を押す</li>
       <li>SteamVR が自動で起動して映像が流れます（始まらなければ <strong>Launch SteamVR</strong>）</li>
     </ol>
@@ -648,11 +653,11 @@
       <li><span class="kbd">licenses/ALVR.txt</span> … ALVR の著作権表示と MIT License の全文</li>
       <li><span class="kbd">licenses/dependencies.html</span> … ALVR が使っているライブラリのライセンス一覧</li>
       <li><span class="kbd">licenses/NotoSansJP-OFL.txt</span> … アプリ内の日本語表示に使っているフォント（Noto Sans JP、SIL Open Font License 1.1）</li>
-      <li><span class="kbd">licenses/OpenXR-loaders.txt</span>・<span class="kbd">licenses/Meta-OpenXR-SDK-Third-Party-Notices.txt</span> … アプリに入っている OpenXR ローダー（Khronos・Meta・PICO・YVR）のライセンス。
-        公式 ALVR と同じものを変更せずに同梱しています。Quest 3 で使うのは Khronos のものだけです</li>
+      <li><span class="kbd">licenses/OpenXR-loader.txt</span> … アプリに入っている OpenXR ローダー（Khronos、変更なし）のライセンス（Apache License 2.0）</li>
       <li><span class="kbd">pc/alvr_streamer_windows.zip</span> … ALVR 公式の開発版ストリーマーをそのまま同梱しています。中の licenses フォルダに FFmpeg などのライセンスが入っています。
         FFmpeg は GPLv3 のため、ソースコードの入手先を <span class="kbd">licenses/PC-streamer-sources.txt</span> に記載しています</li>
       <li>adb は同梱せず、インストール時に Google から取得します（Google の利用規約が適用されます）</li>
+      <li>同じライセンス文書は、アプリ本体（APK）の中の <span class="kbd">assets/licenses</span> にも入っています</li>
     </ul>
     <p>本ソフトウェアは<strong>無保証</strong>です。使用によって生じたいかなる損害についても、作者および ALVR の著作権者は責任を負いません（MIT License の規定のとおり）。
       Meta Quest は Meta Platforms, Inc. の、SteamVR は Valve Corporation の商標です。</p>
